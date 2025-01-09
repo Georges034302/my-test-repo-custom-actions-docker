@@ -1,0 +1,41 @@
+# Team Workflow on push
+name: Team Workflow
+
+on:
+   push:
+      branches: 
+         - main
+
+jobs:
+   update_html_and_readme:
+      runs-on: ubuntu-latest
+
+      steps:
+         # Step 1: Checkout repo
+         - name: Checkout Repository
+           uses: actions/checkout@v3
+
+         # Step 2: Run Vowel Analyzer
+         - name: Run Python Vowel Analyzer
+           run: |
+            FREQ_RESULT=$(python3 .github/scripts/frequency.py 'data.txt')
+            echo "FREQ_RESULT=$FREQ_RESULT" >> $GITHUB_ENV
+
+         # Step 3: Update Index HTML
+         - name: Update HTML
+           run: |
+            # Team Leader Update index.HTML
+            FREQ_RESULT="${{ env.FREQ_RESULT }}"
+            GITHUB_USER="${{ github.actor }}"
+            if [ "${{ github.actor }}" == "Georges034302" ]; then
+               bash .github/scripts/update_index.sh "$FREQ_RESULT" "$GITHUB_USER"
+            fi
+
+         # Step 4: Update README
+         - name: Update README
+           run: |
+            FREQ_RESULT="${{ env.FREQ_RESULT }}"
+            GITHUB_USER="${{ github.actor }}"
+            bash .github/scripts/update_readme.sh "$FREQ_RESULT" "$GITHUB_USER"
+
+             
